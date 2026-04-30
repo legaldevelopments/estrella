@@ -174,6 +174,15 @@ def cargar_base():
             df[col] = df[col].fillna("Sin dato")
 
     df["_rng_ord"] = pd.Categorical(df["RANGO_AVALUO"], categories=ORDEN_RANGOS + ["Sin dato"], ordered=True)
+
+    # Deduplicar por FICHA: las columnas fiscales corresponden al predio, no al propietario
+    if "FICHA" in df.columns:
+        n_antes = len(df)
+        df = df.drop_duplicates(subset=["FICHA"], keep="first")
+        n_dup = n_antes - len(df)
+        if n_dup > 0:
+            df.attrs["_filas_duplicadas"] = n_dup
+
     return df
 
 
@@ -266,10 +275,14 @@ st.markdown("""
 </div>""", unsafe_allow_html=True)
 
 n_f = len(df); n_t = len(df_all)
+dup_removed = df_all.attrs.get("_filas_duplicadas", 0)
+if dup_removed:
+    st.warning(f"Se eliminaron **{dup_removed:,}** filas duplicadas por FICHA (múltiples propietarios por predio). "
+               f"Los totales fiscales se calculan sobre predios únicos.")
 if n_f < n_t:
     st.info(f"Mostrando **{n_f:,}** de **{n_t:,}** predios según filtros aplicados.")
 else:
-    st.info(f"**{n_t:,}** predios totales · Municipio de La Estrella · Actualización catastral 2026")
+    st.info(f"**{n_t:,}** predios totales únicos · Municipio de La Estrella · Actualización catastral 2026")
 
 
 # ── TABS PRINCIPALES ──────────────────────────────────────────────────────────
@@ -924,5 +937,6 @@ st.markdown(
     "Municipio de La Estrella · Predial 2026 · Acuerdo 021/2025 · Parágrafo Transitorio"
     "</center>", unsafe_allow_html=True,
 )
+
 
 
