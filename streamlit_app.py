@@ -88,6 +88,20 @@ st.markdown("""
   }
   .header-main h1 { margin:0; font-size:1.75rem; font-weight:800; }
   .header-main p  { margin:4px 0 0; opacity:0.85; font-size:0.9rem; }
+  /* tabs */
+  .stTabs [data-baseweb="tab-list"] { gap: 6px; }
+  .stTabs [data-baseweb="tab"] {
+      color: #1F4E79 !important; font-weight: 600; font-size: 0.88rem;
+  }
+  .stTabs [aria-selected="true"] {
+      color: #1F4E79 !important;
+      border-bottom: 3px solid #2E75B6 !important;
+  }
+  /* ejes y textos de plotly */
+  .js-plotly-plot .gtitle, .js-plotly-plot .xtick text, .js-plotly-plot .ytick text {
+      fill: #1F4E79 !important;
+  }
+
   .nota-legal {
       background:#FFF9E6; border-left:4px solid #FFD966;
       border-radius:6px; padding:10px 14px; font-size:0.80rem; color:#555; margin-top:8px;
@@ -109,7 +123,7 @@ def fmt_cop(v):
     if pd.isna(v) or v == 0:
         return "$0"
     if abs(v) >= 1e9:
-        return f"${v/1e9:,.2f} B"
+        return f"${v/1e9:,.2f} MM"
     if abs(v) >= 1e6:
         return f"${v/1e6:,.1f} M"
     return f"${v:,.0f}"
@@ -125,7 +139,7 @@ def kpi(col, val, lab, sub="", color=""):
         </div>""", unsafe_allow_html=True)
 
 
-ORDEN_RANGOS = ["0–10 M", "10–50 M", "50–100 M", "100–300 M", "300 M–1 B", ">1 B"]
+ORDEN_RANGOS = ["0–10 M", "10–50 M", "50–100 M", "100–300 M", "300 M–1 MM", ">1 MM"]
 
 
 # ── CARGA DE DATOS ────────────────────────────────────────────────────────────
@@ -302,12 +316,12 @@ with tab1:
             y=[predial_2025, sin_tope_2026, ipu_2026],
             marker_color=[AZUL_MED, ROJO if sin_tope_2026 > ipu_2026 else AMBAR, VERDE],
             text=[fmt_cop(v) for v in [predial_2025, sin_tope_2026, ipu_2026]],
-            textposition="outside", textfont=dict(size=10, color="black"),
+            textposition="outside", textfont=dict(size=10, color="#1F4E79"),
         ))
         fig_bar.update_layout(
             title=dict(text="Comparativo de Recaudo ($)", font=dict(size=13, color=AZUL_OSC)),
-            xaxis=dict(tickfont=dict(color="black")),
-            yaxis=dict(tickformat="$,.0f", showgrid=True, gridcolor="#eee", tickfont=dict(color="black")),
+            xaxis=dict(tickfont=dict(color="#1F4E79")),
+            yaxis=dict(tickformat="$,.0f", showgrid=True, gridcolor="#eee", tickfont=dict(color="#1F4E79")),
             plot_bgcolor="white", paper_bgcolor="white",
             margin=dict(t=50, b=20, l=10, r=20), height=330, showlegend=False,
         )
@@ -320,13 +334,13 @@ with tab1:
             values=cat_counts.values.tolist(),
             hole=0.50,
             marker_colors=[VERDE, AZUL_MED, AMBAR, NARANJA, ROJO, GRIS][:len(cat_counts)],
-            textinfo="percent", textfont=dict(size=8, color="black"),
+            textinfo="percent", textfont=dict(size=8, color="#1F4E79"),
             hovertemplate="%{label}: %{value:,}<extra></extra>",
         ))
         fig_pie.update_layout(
             title=dict(text="Distribución Categorías de Límite", font=dict(size=12, color=AZUL_OSC)),
             showlegend=True,
-            legend=dict(font=dict(size=8, color="black"), orientation="v"),
+            legend=dict(font=dict(size=8, color="#1F4E79"), orientation="v"),
             margin=dict(t=50, b=0, l=0, r=0), height=330,
             paper_bgcolor="white",
             annotations=[dict(text=f"<b>{n_f:,}</b><br>predios",
@@ -340,14 +354,14 @@ with tab1:
             y=[var_s, var_c],
             marker_color=[ROJO if var_s > 50 else AMBAR, VERDE if var_c >= 0 else ROJO],
             text=[f"{var_s:+.1f}%", f"{var_c:+.1f}%"],
-            textposition="outside", textfont=dict(size=12, color="black"),
+            textposition="outside", textfont=dict(size=12, color="#1F4E79"),
         ))
         fig_var.add_hline(y=50, line_dash="dot", line_color=NARANJA,
                           annotation_text="Límite e = 50%", annotation_position="bottom right")
         fig_var.update_layout(
             title=dict(text="Variación Recaudo vs 2025", font=dict(size=13, color=AZUL_OSC)),
-            xaxis=dict(tickfont=dict(color="black")),
-            yaxis=dict(ticksuffix="%", showgrid=True, gridcolor="#eee", tickfont=dict(color="black")),
+            xaxis=dict(tickfont=dict(color="#1F4E79")),
+            yaxis=dict(ticksuffix="%", showgrid=True, gridcolor="#eee", tickfont=dict(color="#1F4E79")),
             plot_bgcolor="white", paper_bgcolor="white",
             margin=dict(t=50, b=20, l=10, r=10), height=330, showlegend=False,
         )
@@ -400,8 +414,8 @@ with tab2:
         fig_cat.update_layout(
             title="N° Predios por Categoría",
             plot_bgcolor="white", paper_bgcolor="white",
-            xaxis=dict(tickfont=dict(color="black")),
-            yaxis=dict(tickfont=dict(color="black"), autorange="reversed"),
+            xaxis=dict(tickfont=dict(color="#1F4E79")),
+            yaxis=dict(tickfont=dict(color="#1F4E79"), autorange="reversed"),
             margin=dict(t=50, b=20, l=10, r=60), height=340,
         )
         st.plotly_chart(fig_cat, use_container_width=True)
@@ -426,8 +440,8 @@ with tab2:
         fig_ipu.update_layout(
             title="Recaudo por Categoría ($)",
             barmode="group", plot_bgcolor="white", paper_bgcolor="white",
-            xaxis=dict(tickfont=dict(color="black"), tickangle=-15),
-            yaxis=dict(tickformat="$,.0f", showgrid=True, gridcolor="#eee", tickfont=dict(color="black")),
+            xaxis=dict(tickfont=dict(color="#1F4E79"), tickangle=-15),
+            yaxis=dict(tickformat="$,.0f", showgrid=True, gridcolor="#eee", tickfont=dict(color="#1F4E79")),
             legend=dict(orientation="h", yanchor="bottom", y=1.01),
             margin=dict(t=60, b=30, l=10, r=10), height=340,
         )
@@ -693,8 +707,8 @@ with tab4:
                 fig_hist_av.update_layout(
                     plot_bgcolor="white", paper_bgcolor="white",
                     height=360, margin=dict(t=50, b=20, l=10, r=10),
-                    xaxis=dict(tickfont=dict(color="black")),
-                    yaxis=dict(title="N° predios", tickfont=dict(color="black")),
+                    xaxis=dict(tickfont=dict(color="#1F4E79")),
+                    yaxis=dict(title="N° predios", tickfont=dict(color="#1F4E79")),
                 )
                 st.plotly_chart(fig_hist_av, use_container_width=True)
 
@@ -726,8 +740,8 @@ with tab4:
                     plot_bgcolor="white", paper_bgcolor="white",
                     height=360, margin=dict(t=50, b=20, l=10, r=10),
                     legend=dict(orientation="h", yanchor="bottom", y=1.01),
-                    xaxis=dict(tickformat="$,.0f", tickfont=dict(color="black")),
-                    yaxis=dict(tickformat="$,.0f", tickfont=dict(color="black")),
+                    xaxis=dict(tickformat="$,.0f", tickfont=dict(color="#1F4E79")),
+                    yaxis=dict(tickformat="$,.0f", tickfont=dict(color="#1F4E79")),
                 )
                 fig_sc.update_traces(marker=dict(size=4))
                 st.plotly_chart(fig_sc, use_container_width=True)
@@ -767,8 +781,8 @@ with tab4:
                     title="N° Predios por Rango de Incremento en Avalúo",
                     plot_bgcolor="white", paper_bgcolor="white",
                     height=260, margin=dict(t=50, b=20, l=10, r=10),
-                    xaxis=dict(tickfont=dict(color="black"), tickangle=-20),
-                    yaxis=dict(tickfont=dict(color="black")),
+                    xaxis=dict(tickfont=dict(color="#1F4E79"), tickangle=-20),
+                    yaxis=dict(tickfont=dict(color="#1F4E79")),
                 )
                 st.plotly_chart(fig_cat_av, use_container_width=True)
 
@@ -910,4 +924,5 @@ st.markdown(
     "Municipio de La Estrella · Predial 2026 · Acuerdo 021/2025 · Parágrafo Transitorio"
     "</center>", unsafe_allow_html=True,
 )
+
 
